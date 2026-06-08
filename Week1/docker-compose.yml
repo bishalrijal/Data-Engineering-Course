@@ -11,6 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./rides.csv:/data/rides.csv:ro
+      - .:/scripts
     restart: unless-stopped
 
 volumes:
