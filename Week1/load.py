@@ -5,9 +5,9 @@ import os
 # Update these if your PostgreSQL setup is different.
 DB_HOST     = "localhost"
 DB_PORT     = 5432
-DB_NAME     = "<your_db_name>"  # replace with your actual database name
-DB_USER     = "<your_db_user>"  # replace with your actual database user
-DB_PASSWORD = "<your_db_password>"  # replace with your actual database password
+DB_NAME     = "ridedb"  # replace with your actual database name
+DB_USER     = "postgres"  # replace with your actual database user
+DB_PASSWORD = "postgres"  # replace with your actual database password
 
 # Path to the CSV file (same folder as this script by default)
 CSV_PATH = os.path.join(os.path.dirname(__file__), "rides.csv")
@@ -71,6 +71,7 @@ def load_csv(conn, csv_path):
     The 'with open(...)' block safely closes the file even if an
     error occurs mid-load.
     """
+    # with open garda no need to close, open matra gare pugcha so with open is better than open, also like error handling pani with le nai handle gardincha
     with conn.cursor() as cur:
         with open(csv_path, "r", encoding="utf-8") as f:
             next(f)  # skip the header row -- COPY doesn't want it
@@ -121,3 +122,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# .env file chaina, error handling chaina, migration file banauna sakiyo because every single time table drop bhairacha which is unnecessary
