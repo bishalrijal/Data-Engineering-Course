@@ -65,6 +65,13 @@ refused to rate driver.*/
 	-- Show the 10 most recent completed rides
 	-- (hint: order by requested_at, filter by ride_status).
 
+/*SELECT 
+   		count(*) AS Null_Count
+  FROM 
+		rides 
+  WHERE 
+		requested_at IS NULL*/ --Output-0 (i.e., No Null values)
+
 SELECT
 	ride_id,
 	driver_name,
@@ -74,7 +81,6 @@ SELECT
 FROM
 	rides
 WHERE
-	requested_at IS NOT NULL
 	AND ride_status = 'completed'
 ORDER BY
 	requested_at DESC
