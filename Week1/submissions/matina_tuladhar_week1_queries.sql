@@ -113,15 +113,40 @@ SELECT
 FROM
     rides
 WHERE
-    pickup_city = dropoff_city
-    OR (
-        pickup_city IS NULL
-        AND dropoff_city IS NULL
-    );
+    pickup_city = dropoff_city;
 
 -- Same pickup and dropoff city could sometimes be legitimate
 -- (e.g. a round trip, or a very short ride within the same city zone).
--- However, rows where both pickup_city AND dropoff_city are NULL
--- are likely missing data caused by a system error or incomplete booking
--- and should be treated as invalid.
--- Worth investigating before using this data for any analysis.
+
+
+-- PR correction:
+
+SELECT
+    COUNT(*) AS same_city_rides
+FROM
+    rides
+WHERE
+    pickup_city IS NULL
+        AND dropoff_city IS NULL
+
+
+-- We got the result as 0.
+
+--CHECKING THE TABLES CREATED FOR NULL OR NOT NULL CONDITIONS:
+
+
+--                                              Table "public.rides"
+--      Column      |            Type             | Collation | Nullable |                Default                 
+-- -----------------+-----------------------------+-----------+----------+----------------------------------------
+--  ride_id         | integer                     |           | not null | nextval('rides_ride_id_seq'::regclass)
+--  driver_name     | character varying(250)      |           | not null | 
+--  passenger_name  | character varying(250)      |           | not null | 
+--  pickup_city     | character varying(250)      |           | not null | 
+--  dropoff_city    | character varying(250)      |           | not null | 
+--  fare_amount     | numeric(10,2)               |           | not null | 
+--  ride_distance   | numeric(6,2)                |           | not null | 
+--  ride_status     | character varying(25)       |           | not null | 'pending'::character varying
+--  requested_at    | timestamp without time zone |           | not null | 
+--  completed_at    | timestamp without time zone |           |          | 
+--  rating          | numeric(2,1)                |           |          | 
+--  payment_methods | character varying(100)      |           |          | 
