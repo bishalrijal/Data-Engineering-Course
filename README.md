@@ -13,12 +13,11 @@ A hands-on data engineering course covering the core tools and concepts used in 
 | Week | Topic | Resources | Status |
 |------|-------|-----------|--------|
 | [Week 1](#week-1--data-engineering-and-basic-sql) | Data engineering and Basic SQL | | In progress |
-| [Week 2](#week-2--string-functions) | String Functions | [Cheatsheet](https://bishalrijal.github.io/Data-Engineering-Course/Week2/week2_string_functions_cheatsheet.html) | In progress |
+| [Week 2](#week-2--string-functions-normalization--group-by) | String Functions, Normalization, GROUP BY | [Cheatsheet](https://bishalrijal.github.io/Data-Engineering-Course/Week2/week2_string_functions_cheatsheet.html) · [Normalization](https://bishalrijal.github.io/Data-Engineering-Course/Week2/normalization_exercise.html) · [GROUP BY](https://bishalrijal.github.io/Data-Engineering-Course/Week2/group_by_under_the_hood.html) | In progress |
 
 ---
 
 ## Week 1 — Data engineering and Basic SQL
-
 
 ### Files
 
@@ -29,8 +28,6 @@ A hands-on data engineering course covering the core tools and concepts used in 
 | `load.py` | Python script to create the `rides` table and load `rides.csv` via PostgreSQL COPY |
 | `requirements.txt` | Python dependencies for this week |
 | `rides.csv` | Sample ride-sharing dataset (ride fares, distances, statuses across Nepali cities) |
-| `load.py` | Python script to create the `rides` table and load `rides.csv` via PostgreSQL COPY |
-| `requirements.txt` | Python dependencies for this week |
 
 ### Dataset Schema
 
@@ -66,6 +63,44 @@ docker exec -it course_postgres psql -U postgres -d ridedb
 # Stop the container when done
 docker compose down
 ```
+
+---
+
+## Week 2 — String Functions, Normalization & GROUP BY
+
+This week covers three interconnected topics: cleaning messy string data, understanding why table design matters, and seeing how the database executes aggregate queries under the hood.
+
+### Topics
+
+**String Functions** — PostgreSQL functions for cleaning dirty data: `LOWER`, `TRIM`, `REGEXP_REPLACE`, `SPLIT_PART`, `CONCAT`, and more. The cheatsheet shows each function with a real example from the rides dataset.
+
+**Normalization (1NF → 2NF → 3NF)** — Start with one broken flat table that violates every normal form. Step through each fix and watch the schema get cleaner at each stage. Covers partial dependencies, transitive dependencies, and when to extract a new table.
+
+**GROUP BY under the hood** — A step-by-step walkthrough of what PostgreSQL actually does when it executes a GROUP BY: reading rows from disk, hashing each row's key into an in-memory bucket, running aggregate functions once per bucket, then sorting the result with ORDER BY. Covers the HashAggregate vs GroupAggregate plan choice and why casing mismatches silently split one group into two.
+
+### Interactive Resources
+
+| Resource | Link | What it covers |
+|----------|------|----------------|
+| String Functions Cheatsheet | [Open](https://bishalrijal.github.io/Data-Engineering-Course/Week2/week2_string_functions_cheatsheet.html) | Every key string function with live rides examples |
+| Normalization Exercise | [Open](https://bishalrijal.github.io/Data-Engineering-Course/Week2/normalization_exercise.html) | Fix a broken table through 1NF, 2NF, 3NF step by step |
+| GROUP BY Walkthrough | [Open](https://bishalrijal.github.io/Data-Engineering-Course/Week2/group_by_under_the_hood.html) | How HashAggregate works internally, phase by phase |
+
+### Files
+
+| File | Description |
+|------|-------------|
+| `week2_string_functions_cheatsheet.html` | Interactive string functions reference |
+| `normalization_exercise.html` | Step-by-step normalization walkthrough (1NF → 2NF → 3NF) |
+| `group_by_under_the_hood.html` | Interactive GROUP BY internals walkthrough |
+| `query_driver.py` | Python script for running queries against the rides database |
+| `requirements.txt` | Python dependencies for this week |
+
+### Key Concepts
+
+**Why normalization matters for this dataset** — The `rides` table has `driver_name` stored as free text. If the same driver is entered as `"ramesh shrestha"` and `"Ramesh Shrestha"`, GROUP BY treats them as two separate drivers — because `hash('ramesh shrestha') ≠ hash('Ramesh Shrestha')`. Normalization fixes this by giving each driver a row in a `drivers` table with a numeric `driver_id` as the foreign key in `rides`.
+
+**The normalization → GROUP BY connection** — Once the schema is normalized and `driver_name` lives in exactly one place, aggregate queries become reliable: GROUP BY on `driver_id` (an integer) is unambiguous, and any display name change only requires updating one row.
 
 ---
 

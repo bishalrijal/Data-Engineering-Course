@@ -212,8 +212,71 @@
 <!-- ═══════ STEP 1 — FIX 1NF ═══════ -->
 <div class="panel" id="p1">
   <span class="badge" style="background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue)">① first normal form</span>
-  <p class="ptitle">Fix 1NF — make every cell atomic</p>
-  <p class="psub">The <code>grades</code> column stores <code>"midterm:A, final:A+"</code> — two values crammed into one cell. 1NF says: one value per cell, one fact per column.</p>
+  <p class="ptitle">Fix 1NF — primary key + atomic values</p>
+  <p class="psub">1NF has two requirements: the table must have a <strong>primary key</strong>, and every cell must hold exactly <strong>one atomic value</strong>. We handle both — first identify the key, then fix the multi-valued <code>grades</code> column.</p>
+
+  <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px">Part 1 — identify the primary key</p>
+
+  <div class="fix-block">
+    <div class="fix-title">Ask: which column(s) uniquely identify every row?</div>
+    <div class="fix-desc">A primary key is the <em>minimum</em> set of columns where no two rows ever share the same combination of values. Test each candidate against the actual data — look for duplicates:</div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+
+      <div style="flex:1;min-width:150px;border:1px solid var(--red-bd);border-radius:7px;overflow:hidden;font-size:11px">
+        <div style="padding:6px 10px;background:var(--red-bg);color:var(--red);font-weight:600;border-bottom:1px solid var(--red-bd)">✗ student_id alone?</div>
+        <div style="padding:8px 10px">
+          <div style="font-family:var(--mono);display:flex;flex-direction:column;gap:2px;margin-bottom:6px">
+            <div style="background:var(--red-bg);color:var(--red);padding:2px 6px;border-radius:4px">S01 ← appears twice</div>
+            <div style="background:var(--red-bg);color:var(--red);padding:2px 6px;border-radius:4px">S01 ← duplicate</div>
+            <div style="padding:2px 6px;color:var(--muted)">S02</div>
+            <div style="padding:2px 6px;color:var(--muted)">S02</div>
+            <div style="padding:2px 6px;color:var(--muted)">S03</div>
+          </div>
+          <p style="color:var(--red);line-height:1.4">Ramesh takes 2 courses — S01 repeats. Not unique. ✗</p>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:150px;border:1px solid var(--red-bd);border-radius:7px;overflow:hidden;font-size:11px">
+        <div style="padding:6px 10px;background:var(--red-bg);color:var(--red);font-weight:600;border-bottom:1px solid var(--red-bd)">✗ course_id alone?</div>
+        <div style="padding:8px 10px">
+          <div style="font-family:var(--mono);display:flex;flex-direction:column;gap:2px;margin-bottom:6px">
+            <div style="background:var(--red-bg);color:var(--red);padding:2px 6px;border-radius:4px">C01 ← appears 3×</div>
+            <div style="padding:2px 6px;color:var(--muted)">C02</div>
+            <div style="background:var(--red-bg);color:var(--red);padding:2px 6px;border-radius:4px">C01 ← duplicate</div>
+            <div style="padding:2px 6px;color:var(--muted)">C02</div>
+            <div style="background:var(--red-bg);color:var(--red);padding:2px 6px;border-radius:4px">C01 ← duplicate</div>
+          </div>
+          <p style="color:var(--red);line-height:1.4">3 students take Database — C01 repeats. Not unique. ✗</p>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:150px;border:1px solid var(--green-bd);border-radius:7px;overflow:hidden;font-size:11px">
+        <div style="padding:6px 10px;background:var(--green-bg);color:var(--green);font-weight:600;border-bottom:1px solid var(--green-bd)">✓ (student_id, course_id)?</div>
+        <div style="padding:8px 10px">
+          <div style="font-family:var(--mono);display:flex;flex-direction:column;gap:2px;margin-bottom:6px">
+            <div style="padding:2px 6px;color:var(--muted)">S01 + C01 — unique</div>
+            <div style="padding:2px 6px;color:var(--muted)">S01 + C02 — unique</div>
+            <div style="padding:2px 6px;color:var(--muted)">S02 + C01 — unique</div>
+            <div style="padding:2px 6px;color:var(--muted)">S02 + C02 — unique</div>
+            <div style="padding:2px 6px;color:var(--muted)">S03 + C01 — unique</div>
+          </div>
+          <p style="color:var(--green);line-height:1.4">Every pair is distinct. This is the primary key — a <strong>composite key</strong>. ✓</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="callout neutral">
+    <span>📌</span>
+    <span><strong>Why a composite key?</strong> A composite key signals that this table represents a <em>relationship</em> between two entities — student and course. One student can enroll in many courses; one course can have many students. Neither alone is enough to pinpoint a specific row. You'll see why this matters in the 2NF step.</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px">Part 2 — fix the non-atomic value</p>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Now the second 1NF rule: every cell must hold exactly one value. The <code>grades</code> column stores <code>"midterm:A, final:A+"</code> — two values crammed into one cell. You can't query a specific exam without string parsing.</p>
 
   <div class="ba-grid">
     <div class="ba-card">
