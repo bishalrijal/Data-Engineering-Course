@@ -1,4 +1,8 @@
-
+-- Student Name: Aditya Shanker Shrestha
+-- Week 2: Normalizing the flat rides table into 3NF
+-- Entities: locations, drivers, passengers, payment_methods, trips
+-- Cleaning: initcap + trim + regexp_replace for consistent dedup
+-- Verified: 5000 rows preserved, end-to-end joins reconstruct original data
 -- Cleaning and normalizing rides
 
 -- Creating tables for normalization. In order for table data dependencies due to foreign key usages.
