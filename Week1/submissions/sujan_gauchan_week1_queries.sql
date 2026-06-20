@@ -14,7 +14,7 @@ FROM
 -- List all unique pickup cities, sorted alphabetically.
 
 SELECT
-	DISTINCT(pickup_city) AS pickup_cities
+	DISTINCT pickup_city AS pickup_cities
 FROM
 	rides
 ORDER BY
@@ -33,7 +33,7 @@ SELECT
 FROM
 	rides
 WHERE
-	fare_amount >500
+	fare_amount > 500
 ORDER BY
 	fare_amount DESC;
 
