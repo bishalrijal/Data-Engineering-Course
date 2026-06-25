@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS payment_methods ;
 -- First creating raw tables which will be later populated based on data/values in rides table
 
 
--- Location
+-- Locations
 
 CREATE TABLE locations (
     location_id SERIAL PRIMARY KEY,
@@ -36,7 +36,7 @@ CREATE TABLE drivers (
 );
 
 
--- Passenger
+-- Passengers
 
 CREATE TABLE passengers (
     passenger_id SERIAL PRIMARY KEY,
@@ -52,7 +52,7 @@ CREATE TABLE payment_methods (
 );
 
 
--- Trips table
+-- Trips
 
 CREATE TABLE  trips (
 	trip_id serial PRIMARY KEY,
