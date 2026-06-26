@@ -3,11 +3,11 @@ import os
 
 # ── CONNECTION SETTINGS ───────────────────────────────────────────
 # Update these if your PostgreSQL setup is different.
-DB_HOST     = "localhost"
+DB_HOST     = "127.0.0.1"
 DB_PORT     = 5432
-DB_NAME     = "<your_db_name>"  # replace with your actual database name
-DB_USER     = "<your_db_user>"  # replace with your actual database user
-DB_PASSWORD = "<your_db_password>"  # replace with your actual database password
+DB_NAME     = "ridedb"  # replace with your actual database name
+DB_USER     = "nepal"  # replace with your actual database user
+DB_PASSWORD = ""  # replace with your actual database password
 
 # Path to the CSV file (same folder as this script by default)
 CSV_PATH = os.path.join(os.path.dirname(__file__), "rides.csv")
@@ -121,3 +121,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+CREATE TABLE raw_quantum_data(
+ caliberation_date DATE NOT NULL,
+ processor_name VARCHAR(50) NOT NULL,
+ qubit_id INTEGER NOT NULL,
+ t1_us NUMERIC(9,6),
+ t2_us NUMERIC(9,6));
