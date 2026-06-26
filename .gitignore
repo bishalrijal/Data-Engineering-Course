@@ -2,8 +2,5 @@
 .venv/
 venv/
 env/
-<<<<<<< HEAD
-scratch/
-=======
 .env
->>>>>>> fe64419ee49ac7630818fa32fc16aa7d509d0ad3
+scratch/
