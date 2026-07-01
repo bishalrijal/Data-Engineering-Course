@@ -54,11 +54,8 @@ def load_config() -> dict:
     Returns:
         dict with keys: host, port, dbname, user, password
     """
-    # TODO: call load_dotenv() here
+    
     load_dotenv()
-
-    # TODO: return a dict using os.getenv() for each key
-    # Hint: { "host": os.getenv("DB_HOST"), ... }
 
     return {
         "host": os.getenv("DB_HOST"),
@@ -83,7 +80,6 @@ def get_connection(config: dict):
     Hint: psycopg2.connect(host=..., port=..., dbname=..., user=..., password=...)
           Use ** to unpack the config dict directly.
     """
-    # TODO: return psycopg2.connect(**config)
 
     connection = psycopg2.connect(**config)
     return connection
@@ -107,7 +103,6 @@ def fetch_drivers(conn) -> list:
       4. Close the cursor and return the rows
     """
 
-     # TODO: implement this function
 
     with conn.cursor() as cur:
         cur.execute(SQL)
@@ -137,19 +132,14 @@ def print_results(rows: list) -> None:
         - f"{value:>15}"  right-aligns in 15 chars
     """
 
-    # TODO: print the header
 
     print(f"{'Driver':<25}{'Completed Rides':>15}")
     print("-" * 42)
 
 
-    # TODO: loop over rows and print each driver_name and completed_rides
-
     for driver_name, completed_rides in rows:
         print(f"{driver_name:<25}{completed_rides:>15}")
 
-
-    # TODO: print a footer with the total number of drivers
 
     print("-" * 42)
     print(f"{'Total drivers:':<25}{len(rows):>15}")
