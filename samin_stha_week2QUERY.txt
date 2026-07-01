@@ -1,0 +1,116 @@
+-- Remove existing tables (clean setup)
+DROP TABLE IF EXISTS trips CASCADE;
+DROP TABLE IF EXISTS drivers CASCADE;
+DROP TABLE IF EXISTS passengers CASCADE;
+DROP TABLE IF EXISTS locations CASCADE;
+DROP TABLE IF EXISTS payment_methods CASCADE;
+
+-- Locations table
+CREATE TABLE locations (
+    id SERIAL PRIMARY KEY,
+    city VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- Drivers table
+CREATE TABLE drivers (
+    id SERIAL PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL
+);
+
+-- Passengers table
+CREATE TABLE passengers (
+    id SERIAL PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL
+);
+
+-- Payment methods table
+CREATE TABLE payment_methods (
+    id SERIAL PRIMARY KEY,
+    method_name VARCHAR(50) UNIQUE NOT NULL
+);
+
+-- Trips table (fact table)
+CREATE TABLE trips (
+    id SERIAL PRIMARY KEY,
+    driver_id INT REFERENCES drivers(id),
+    passenger_id INT REFERENCES passengers(id),
+    pickup_loc_id INT REFERENCES locations(id),
+    drop_loc_id INT REFERENCES locations(id),
+    fare NUMERIC(10,2) CHECK (fare > 0),
+    distance NUMERIC(6,2),
+    trip_status VARCHAR(20) CHECK (trip_status IN ('completed','cancelled','no_show')),
+    requested_time TIMESTAMP,
+    completed_time TIMESTAMP,
+    rating NUMERIC(2,1),
+    payment_id INT REFERENCES payment_methods(id)
+);
+
+-- Insert drivers (cleaned)
+INSERT INTO drivers (full_name)
+SELECT DISTINCT 
+    INITCAP(TRIM(REGEXP_REPLACE(r.driver_name, '\s+', ' ', 'g')))
+FROM rides r;
+
+-- Insert passengers (cleaned)
+INSERT INTO passengers (full_name)
+SELECT DISTINCT 
+    INITCAP(TRIM(REGEXP_REPLACE(r.passenger_name, '\s+', ' ', 'g')))
+FROM rides r;
+
+-- Insert locations (both pickup & drop)
+INSERT INTO locations (city)
+SELECT DISTINCT city_name
+FROM (
+    SELECT pickup_city AS city_name FROM rides
+    UNION
+    SELECT dropoff_city FROM rides
+) AS all_cities;
+
+-- Insert payment methods
+INSERT INTO payment_methods (method_name)
+SELECT DISTINCT r.payment_method
+FROM rides r
+WHERE r.payment_method IS NOT NULL;
+
+-- Insert trips using JOINs (different approach)
+INSERT INTO trips (
+    driver_id,
+    passenger_id,
+    pickup_loc_id,
+    drop_loc_id,
+    fare,
+    distance,
+    trip_status,
+    requested_time,
+    completed_time,
+    rating,
+    payment_id
+)
+SELECT
+    d.id,
+    p.id,
+    lp.id,
+    ld.id,
+    r.fare_amount,
+    r.distance_km,
+    r.status,
+    r.requested_at,
+    r.completed_at,
+    r.rating,
+    pm.id
+FROM rides r
+JOIN drivers d 
+    ON d.full_name = INITCAP(TRIM(REGEXP_REPLACE(r.driver_name, '\s+', ' ', 'g')))
+JOIN passengers p 
+    ON p.full_name = INITCAP(TRIM(REGEXP_REPLACE(r.passenger_name, '\s+', ' ', 'g')))
+JOIN locations lp 
+    ON lp.city = r.pickup_city
+JOIN locations ld 
+    ON ld.city = r.dropoff_city
+LEFT JOIN payment_methods pm 
+    ON pm.method_name = r.payment_method;
+
+-- Validation queries
+SELECT COUNT(*) AS original_rows FROM rides;
+SELECT COUNT(*) AS normalized_rows FROM trips;
+SELECT * FROM trips ORDER BY id DESC LIMIT 10;
