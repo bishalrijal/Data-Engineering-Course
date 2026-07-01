@@ -1,0 +1,118 @@
+--1
+CREATE TABLE locations (
+    location_id   SERIAL        PRIMARY KEY,
+    city_name     VARCHAR(100)   NOT NULL UNIQUE
+);
+
+
+CREATE TABLE drivers (
+    driver_id     SERIAL        PRIMARY KEY,
+    name          VARCHAR(100)  NOT NULL
+);
+
+
+CREATE TABLE passengers (
+    passenger_id     SERIAL        PRIMARY KEY,
+    name          VARCHAR(100)  NOT NULL
+);
+
+CREATE TABLE payment_methods (
+	payment_method_id SERIAL PRIMARY KEY,
+	name VARCHAR(30) NOT NULL UNIQUE 
+);
+
+
+CREATE TABLE trips (
+    trip_id              SERIAL        PRIMARY KEY,
+    driver_id            INTEGER       NOT NULL REFERENCES drivers(driver_id),
+    passenger_id         INTEGER       NOT NULL REFERENCES passengers(passenger_id),
+    pickup_location_id   INTEGER       NOT NULL REFERENCES locations(location_id),
+    dropoff_location_id  INTEGER       NOT NULL REFERENCES locations(location_id),
+    fare_amount          NUMERIC(10,2) NOT NULL CHECK (fare_amount > 0),
+    distance_km          NUMERIC(6,2)  NOT NULL,
+    status               varchar(50)   NOT NULL CHECK (status IN ('completed','cancelled','no_show')),
+    requested_at         TIMESTAMP     NOT NULL,
+    completed_at         TIMESTAMP,
+    rating               NUMERIC(2,1)  CHECK (rating BETWEEN 1.0 AND 5.0),
+    payment_method_id    INTEGER       REFERENCES payment_methods(payment_method_id)
+);
+--2
+
+SELECT count(d.name),d.name  FROM drivers d JOIN trips t ON d.driver_id = t.driver_id 
+WHERE t.status = 'completed'
+GROUP BY d.name
+ORDER BY d.name desc;
+
+--3
+SELECT * FROM drivers d LEFT JOIN trips t ON d.driver_id = t.driver_id 
+WHERE t.status IS NULL ;
+
+
+--4
+SELECT
+    l.city_name AS pickup_city,
+    ROUND(AVG(t.fare_amount), 2) AS average_fare
+FROM trips t
+JOIN locations l
+    ON t.pickup_location_id = l.location_id
+GROUP BY l.city_name
+ORDER BY average_fare DESC;
+
+--5
+SELECT
+    t.trip_id,
+    lp.city_name AS pickup_city,
+    ld.city_name AS dropoff_city
+FROM trips t
+JOIN locations lp
+    ON t.pickup_location_id = lp.location_id
+JOIN locations ld
+    ON t.dropoff_location_id = ld.location_id
+WHERE lp.city_name = ld.city_name;
+
+
+--6
+SELECT
+    ROUND(SUM(fare_amount), 2) AS total_revenue
+FROM trips
+WHERE status = 'completed';
+
+--7
+import psycopg2
+
+# Connect to PostgreSQL
+conn = psycopg2.connect(
+    host="localhost",
+    database="postgres",
+    user="postgres",
+    password="password",
+    port="5432"
+)
+
+cursor = conn.cursor()
+
+# SQL Query (Q2)
+query = """
+SELECT
+    l.city_name AS pickup_city,
+    ROUND(AVG(t.fare_amount), 2) AS average_fare
+FROM trips t
+JOIN locations l
+ON t.pickup_location_id = l.location_id
+GROUP BY l.city_name
+ORDER BY average_fare DESC;
+"""
+
+cursor.execute(query)
+
+rows = cursor.fetchall()
+
+# Print formatted table
+print(f"{'Pickup City':<20} {'Average Fare':>15}")
+print("-" * 35)
+
+for row in rows:
+    print(f"{row[0]:<20} {row[1]:>15}")
+
+cursor.close()
+conn.close()
